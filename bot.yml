@@ -3,8 +3,8 @@ author: npd
 description: Report room status from a calendar.
 config:
   - name: JWT_CLIENT_EMAIL
-    global: false
+    global: true
   - name: JWT_KEY
     friendly_name: Shhhh
     type: secret
-    global: false
+    global: true
