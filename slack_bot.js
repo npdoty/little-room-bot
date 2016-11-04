@@ -19,7 +19,7 @@ var controller = Botkit.slackbot({
 var jwtClient = new google.auth.JWT(
   process.env.JWT_CLIENT_EMAIL,
   null,
-  process.env.JWT_KEY,
+  process.env.JWT_KEY.replace(/\\n/g,'\n'),
   ['https://www.googleapis.com/auth/calendar'],
   null
 );
@@ -101,6 +101,7 @@ function isOccupied(callback) {
   
   calendar.events.list({
       calendarId: process.env.CALENDAR_ID,
+      auth: jwtClient,
       timeMin: morning.toISOString(),
       timeMax: night.toISOString(),
       singleEvents: true,
