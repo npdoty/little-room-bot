@@ -1,0 +1,25 @@
+{
+  "name": "Little-Room-Bot",
+  "version": "0.0.0",
+  "description": "Little Room Bot",
+  "author": "Nick Doty",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "dependencies": {
+    "botkit": "^0.2.2",
+    "dotenv": "^2.0.0",
+    "googleapis": "^14.1.0",
+  },
+  "main": "slack_bot.js",
+  "devDependencies": {
+    "eslint": "^3.3.0",
+    "foreman": "^1.4.1",
+    "mocha": "^3.0.2"
+  },
+  "scripts": {
+    "slack": "`npm bin`/nf run bin/slack"
+  }
+}
