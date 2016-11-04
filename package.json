@@ -21,6 +21,6 @@
   },
   "scripts": {
     "slack": "`npm bin`/nf run bin/slack",
-    "start": "node slack_bot.js"
+    "start": "IFS=$'\n'; env $(cat .env) node slack_bot.js"
   }
 }

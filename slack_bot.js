@@ -7,7 +7,7 @@ var Botkit = require('botkit');
 var google = require('googleapis');
 var calendar = google.calendar('v3');
 
-if (!process.env.SLACKBOT_TOKEN) {
+if (!process.env.SLACK_TOKEN) {
   console.log('Error: Specify token in environment');
   process.exit(1);
 }
@@ -35,7 +35,7 @@ jwtClient.authorize(function (err, tokens) {
 });
 
 controller.spawn({
-  token: process.env.SLACKBOT_TOKEN
+  token: process.env.SLACK_TOKEN
 }).startRTM();
 
 
