@@ -16,11 +16,10 @@ var controller = Botkit.slackbot({
   debug: true
 });
 
-var key = require(process.env.JWT_KEY_FILE);
 var jwtClient = new google.auth.JWT(
-  key.client_email,
+  process.env.JWT_CLIENT_EMAIL,
   null,
-  key.private_key,
+  process.env.JWT_KEY,
   ['https://www.googleapis.com/auth/calendar'],
   null
 );
