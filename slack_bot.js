@@ -79,7 +79,7 @@ controller.hears([ 'shutdown', 'goodbye' ], 'direct_message,direct_mention,menti
   });
 });
 
-controller.hears(['are you free?'], 'direct_message,direct_mention,mention', function(bot, message) {
+controller.hears(['are you free?', 'you free?', 'are you available?'], 'direct_message,direct_mention,mention', function(bot, message) {
   isOccupied(function(occupied) {
     if (occupied) {
       bot.reply(message, ("Sorry, but I'm currently reserved for " + occupied.summary))
