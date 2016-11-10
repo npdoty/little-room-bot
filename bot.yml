@@ -9,3 +9,5 @@ config:
   - name: JWT_KEY
     type: secret
     global: true
+  - name: TZ
+    global: true
