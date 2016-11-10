@@ -6,6 +6,8 @@ require('dotenv').config();
 var Botkit = require('botkit');
 var google = require('googleapis');
 var calendar = google.calendar('v3');
+var Sugar = require('sugar');
+Sugar.extend();
 
 if (!process.env.SLACK_TOKEN) {
   console.log('Error: Specify token in environment');
@@ -85,6 +87,57 @@ controller.hears(['are you free?'], 'direct_message,direct_mention,mention', fun
       bot.reply(message, ("Sorry, but I'm currently reserved for " + occupied.summary))
     } else {
       bot.reply(message, "Yes, I'm free.");
+    }
+  });
+});
+
+controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_message,direct_mention,mention', function(bot, message) {
+  bot.startConversation(message, function(err, convo) {
+    console.log(message.match[1]);
+    cleaned_time_range = message.match[1].replace('?', '');
+    console.log(cleaned_time_range);
+    var range = Date.range(cleaned_time_range);
+    
+    if (range.start.isValid() && range.end.isValid()) {
+      // TODO: check whether it's occupied during that time
+
+      // conversation question to ask for the description of the event
+      convo.ask("Sure, what will you be using me for?", function(response, convo) {
+        
+        bot.api.users.info({user: message.user}, (error, user_response) => {
+          var user_name = user_response.user.name;
+          var real_name = user_response.user.real_name;
+          console.log(user_name, real_name);
+          
+          var event = {
+            'summary': response.text,
+            'description': 'Reserved by ' + user_name,
+            'start': {
+              'dateTime': range.start
+            },
+            'end': {
+              'dateTime': range.end
+            }
+          }
+        
+          calendar.events.insert({
+              calendarId: process.env.CALENDAR_ID,
+              auth: jwtClient,
+              resource: event
+            }, function(err, event) {
+              if (err) {
+                convo.say('Oops, ran into a calendar problem: ' + err);
+              } else {
+                convo.say('Great, you are reserved!');
+                convo.say('Here\'s a calendar link: ' + event.htmlLink);
+                convo.next();
+              }
+            });
+        });
+      });
+    } else {
+      convo.say('Oops, I do not understand that timing: ' + range.start + ' -- ' + range.end);
+      convo.next();
     }
   });
 });
