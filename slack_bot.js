@@ -99,7 +99,7 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_mes
     var range = Date.range(cleaned_time_range);
     
     if (range.start.isValid() && range.end.isValid()) {
-      // TODO: check whether it's occupied during that time
+      // TODO: check whether room is occupied during that time
 
       // conversation question to ask for the description of the event
       convo.ask("Sure, what will you be using me for?", function(response, convo) {
@@ -119,6 +119,7 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_mes
               'dateTime': range.end
             }
           }
+          console.log(event);
         
           calendar.events.insert({
               calendarId: process.env.CALENDAR_ID,
@@ -127,6 +128,7 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_mes
             }, function(err, event) {
               if (err) {
                 convo.say('Oops, ran into a calendar problem: ' + err);
+                convo.next();
               } else {
                 convo.say('Great, you are reserved!');
                 convo.say('Here\'s a calendar link: ' + event.htmlLink);
