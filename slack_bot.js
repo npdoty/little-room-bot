@@ -91,7 +91,7 @@ controller.hears(['are you free?'], 'direct_message,direct_mention,mention', fun
   });
 });
 
-controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_message,direct_mention,mention', function(bot, message) {
+controller.hears(['can we use you (.+)', 'can we reserve you (.+)', 'can I use you (.+)', 'can I reserve you (.+)'], 'direct_message,direct_mention,mention', function(bot, message) {
   bot.startConversation(message, function(err, convo) {
     console.log(message.match[1]);
     cleaned_time_range = message.match[1].replace('?', '');
@@ -110,8 +110,8 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_mes
           console.log(user_name, real_name);
           
           var event = {
-            'summary': response.text,
-            'description': 'Reserved by ' + user_name,
+            'summary': response.text + ' - by user_name',
+            'description': 'Reserved by ' + user_name + ' via the little room slackbot',
             'start': {
               'dateTime': range.start
             },
