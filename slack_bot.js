@@ -110,8 +110,8 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)', 'can I use y
           console.log(user_name, real_name);
           
           var event = {
-            'summary': response.text + ' - by user_name',
-            'description': 'Reserved by ' + user_name + ' via the little room slackbot',
+            'summary': response.text + ' - by ' + user_name,
+            'description': 'Reserved using the @littleroom Slackbot',
             'start': {
               'dateTime': range.start
             },
