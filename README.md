@@ -2,7 +2,7 @@
 
 This bot builds on libraries and sample code from Botkit and [Google](https://github.com/google/google-api-nodejs-client) (and some from NYPLEmoji).
 
-## Configuration
+## Configuration (Local)
 
 1. Install dependencies:
 
@@ -26,10 +26,16 @@ This bot builds on libraries and sample code from Botkit and [Google](https://gi
 
 ## Usage
 
-### To start the Slack bot
+### To start the Slack bot (locally)
 
 ```shell
-npm run slack
+npm start
 ```
 
 Then either start a direct message with your bot, or invite it to a channel and say, e.g. "@littleroom, are you free?".
+
+## Beep Boop
+
+@littleroom is currently hosted on [Beep Boop](https://beepboophq.com/), a mostly-free simple Slack-bot-hosting service.
+
+To run on Beep Boop, the `Dockerfile` and `bot.yml` are required. Configuration of Slack token and other environment variables (including the JWT key) happens in the Settings tab.
