@@ -81,7 +81,7 @@ controller.hears([ 'shutdown', 'goodbye' ], 'direct_message,direct_mention,menti
   });
 });
 
-controller.hears(['are you free?'], 'direct_message,direct_mention,mention', function(bot, message) {
+controller.hears(['are you free?', 'you free?', 'are you available?'], 'direct_message,direct_mention,mention', function(bot, message) {
   isOccupied(function(occupied) {
     if (occupied) {
       bot.reply(message, ("Sorry, but I'm currently reserved for " + occupied.summary))
@@ -91,7 +91,7 @@ controller.hears(['are you free?'], 'direct_message,direct_mention,mention', fun
   });
 });
 
-controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_message,direct_mention,mention', function(bot, message) {
+controller.hears(['can we use you (.+)', 'can we reserve you (.+)', 'can I use you (.+)', 'can I reserve you (.+)'], 'direct_message,direct_mention,mention', function(bot, message) {
   bot.startConversation(message, function(err, convo) {
     console.log(message.match[1]);
     cleaned_time_range = message.match[1].replace('?', '');
@@ -110,8 +110,8 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_mes
           console.log(user_name, real_name);
           
           var event = {
-            'summary': response.text,
-            'description': 'Reserved by ' + user_name,
+            'summary': response.text + ' - by ' + user_name,
+            'description': 'Reserved using the @littleroom Slackbot',
             'start': {
               'dateTime': range.start
             },
@@ -142,6 +142,18 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)'], 'direct_mes
       convo.next();
     }
   });
+});
+
+
+controller.hears(['help'], 'direct_mention,mention', function(bot, message) {
+    bot.reply(message, ("DM me with the message 'help' for more information"));
+});
+
+controller.hears(['help'], 'direct_message', function(bot, message) {
+  bot.reply(message, "I'm the littleroom bot - I help schedule room reservations for the PhD little room.");
+  bot.reply(message, "*To see if the room is currently in use*, mention me or DM me and ask 'are you free?'");
+  bot.reply(message, "*To make a reservation*, mention me or DM me and ask 'can we reserve you [date, or 'today' or 'tomorrow'] [start time] to [end time]?'");
+   
 });
 
 function isOccupied(callback) {
