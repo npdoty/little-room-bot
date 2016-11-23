@@ -42,7 +42,9 @@ controller.spawn({
 
 
 // use existing hello/shutdown commands from Botkit
-controller.hears([ 'hello', 'hi' ], 'direct_message,direct_mention,mention', function(bot, message) {
+
+// friendly emoji reaction to salutations and thanks
+controller.hears([ 'hello', 'hi', 'hey', 'thanks' ], 'direct_message,direct_mention,mention', function(bot, message) {
   bot.api.reactions.add({
     timestamp: message.ts,
     channel: message.channel,
@@ -54,6 +56,7 @@ controller.hears([ 'hello', 'hi' ], 'direct_message,direct_mention,mention', fun
   });
 });
 
+// shuts down when asked
 controller.hears([ 'shutdown', 'goodbye' ], 'direct_message,direct_mention,mention', function(bot, message) {
 
   bot.startConversation(message, function(err, convo) {
@@ -152,8 +155,18 @@ controller.hears(['help'], 'direct_mention,mention', function(bot, message) {
 controller.hears(['help'], 'direct_message', function(bot, message) {
   bot.reply(message, "I'm the littleroom bot - I help schedule room reservations for the PhD little room.");
   bot.reply(message, "*To see if the room is currently in use*, mention me or DM me and ask 'are you free?'");
-  bot.reply(message, "*To make a reservation*, mention me or DM me and ask 'can we reserve you [date, or 'today' or 'tomorrow'] [start time] to [end time]?'");
-   
+  bot.reply(message, "*To make a reservation*, mention me or DM me and ask 'can we reserve you [date, or 'today' or 'tomorrow'] from [start time] to [end time]?'");
+});
+
+// new feature suggestions
+ISSUE_URL = 'https://github.com/npdoty/little-room-bot/issues';
+controller.hears([ 'it would be nice if', 'wouldn\'t it be nice if', 'I would love it if', 'how about if you', 'in future, could you' ], 'direct_message,direct_mention,mention', function(bot, message) {
+  bot.reply(message, "Ooh, good idea. Maybe you could open a new issue for me here: " + ISSUE_URL);
+});
+
+// if the sentiment is negative, or if it appears to be a complaint
+controller.hears([ 'hate it when', 'hate when', 'annoying when', 'frustrating when', 'frustrated when', 'please stop' ], 'direct_message,direct_mention,mention', function(bot, message) {
+  bot.reply(message, "Sorry to hear that. Maybe you could open a new issue for me here: " + ISSUE_URL);
 });
 
 function isOccupied(callback) {
