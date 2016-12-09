@@ -145,44 +145,51 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)', 'can I use y
     var range = Date.range(cleaned_time_range);
     
     if (range.start.isValid() && range.end.isValid()) {
-      // TODO: check whether room is occupied during that time
+      isOccupied(function(occupied) {
+        if (occupied) {
+          var start = new Date(Date.parse(occupied.start.dateTime));
+          var end = new Date(Date.parse(occupied.end.dateTime));
+          convo.say("Sorry, but I'm reserved from " + start.format('{h}:{mm}') + " until " + end.format('{h}:{mm}') + " for " + occupied.summary);
+          convo.next();
+        } else {
+          // conversation question to ask for the description of the event
+          convo.ask("Sure, I'm free, what will you be using me for?", function (response, convo) {
 
-      // conversation question to ask for the description of the event
-      convo.ask("Sure, what will you be using me for?", function(response, convo) {
-        
-        bot.api.users.info({user: message.user}, (error, user_response) => {
-          var user_name = user_response.user.name;
-          var real_name = user_response.user.real_name;
-          console.log(user_name, real_name);
-          
-          var event = {
-            'summary': response.text + ' - by ' + user_name,
-            'description': 'Reserved using the @littleroom Slackbot',
-            'start': {
-              'dateTime': range.start
-            },
-            'end': {
-              'dateTime': range.end
-            }
-          }
-          console.log(event);
-        
-          calendar.events.insert({
-              calendarId: process.env.CALENDAR_ID,
-              auth: jwtClient,
-              resource: event
-            }, function(err, event) {
-              if (err) {
-                convo.say('Oops, ran into a calendar problem: ' + err);
-                convo.next();
-              } else {
-                convo.say('Great, you are reserved!');
-                convo.say('Here\'s a calendar link: ' + event.htmlLink);
-                convo.next();
+            bot.api.users.info({ user: message.user }, (error, user_response) => {
+              var user_name = user_response.user.name;
+              var real_name = user_response.user.real_name;
+              console.log(user_name, real_name);
+
+              var event = {
+                'summary': response.text + ' - by ' + user_name,
+                'description': 'Reserved using the @littleroom Slackbot',
+                'start': {
+                  'dateTime': range.start
+                },
+                'end': {
+                  'dateTime': range.end
+                }
               }
+              console.log(event);
+
+              calendar.events.insert({
+                calendarId: process.env.CALENDAR_ID,
+                auth: jwtClient,
+                resource: event
+              }, function (err, event) {
+                if (err) {
+                  convo.say('Oops, ran into a calendar problem: ' + err);
+                  convo.next();
+                } else {
+                  convo.say('Great, you are reserved!');
+                  convo.say('Here\'s a calendar link: ' + event.htmlLink);
+                  convo.next();
+                }
+              });
             });
-        });
-      });
+          });
+        }
+      }, range.start, range.end);
     } else {
       convo.say('Oops, I do not understand that timing: ' + range.start + ' -- ' + range.end);
       convo.next();
