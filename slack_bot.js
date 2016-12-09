@@ -84,7 +84,12 @@ controller.hears([ 'shutdown', 'goodbye' ], 'direct_message,direct_mention,menti
   });
 });
 
-controller.hears(['are you free?', 'you free?', 'are you available?'], 'direct_message,direct_mention,mention', function(bot, message) {
+// check if currently available
+controller.hears([/are you free\?*$/, /you free\?*$/, /are you available\?*$/], 'direct_message,direct_mention,mention', function(bot, message) {
+  isOccupiedNow(bot, message);
+});
+
+function isOccupiedNow(bot, message) {
   isOccupied(function(occupied) {
     if (occupied) {
       bot.reply(message, ("Sorry, but I'm currently reserved for " + occupied.summary))
@@ -92,7 +97,23 @@ controller.hears(['are you free?', 'you free?', 'are you available?'], 'direct_m
       bot.reply(message, "Yes, I'm free.");
     }
   });
+}
+
+// check if available at a particular future time
+controller.hears([/are you free (.+?)\?*$/, /are you available (.+?)\?*$/], 'direct_message,direct_mention,mention', function(bot, message) {
+  console.log(message.match[1]);
+
+  // if colloquially checking for now, use existing functionality
+  if (controller.hears_regexp(['right now', 'now', 'at the moment'], {'text': message.match[1]})) {  
+    isOccupiedNow(bot, message);
+  } else {
+    notImplemented(bot, message, "check future availability");
+  }
 });
+
+function notImplemented(bot, message, feature) {
+  bot.reply(message, ("Oops, sorry, I can't " + feature + " yet."));
+}
 
 controller.hears(['can we use you (.+)', 'can we reserve you (.+)', 'can I use you (.+)', 'can I reserve you (.+)'], 'direct_message,direct_mention,mention', function(bot, message) {
   bot.startConversation(message, function(err, convo) {
