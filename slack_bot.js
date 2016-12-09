@@ -103,11 +103,33 @@ function isOccupiedNow(bot, message) {
 controller.hears([/are you free (.+?)\?*$/, /are you available (.+?)\?*$/], 'direct_message,direct_mention,mention', function(bot, message) {
   console.log(message.match[1]);
 
+  function respondIfAvailableAtTime(occupied) {
+    if (occupied) {
+      var start = new Date(Date.parse(occupied.start.dateTime));
+      var end = new Date(Date.parse(occupied.end.dateTime));
+      bot.reply(message, ("Sorry, but I'm reserved from " + start.format('{h}:{mm}') + " until " + end.format('{h}:{mm}') + " for " + occupied.summary));
+    } else {
+      bot.reply(message, "Yes, I'm free.");
+    }
+  }
+
   // if colloquially checking for now, use existing functionality
   if (controller.hears_regexp(['right now', 'now', 'at the moment'], {'text': message.match[1]})) {  
     isOccupiedNow(bot, message);
   } else {
-    notImplemented(bot, message, "check future availability");
+    var singleTime = Date.create(message.match[1]);
+    if (singleTime.isValid()) { 
+      isOccupied(respondIfAvailableAtTime, singleTime);
+    } else {
+      var dateRange = Date.range(message.match[1]);
+
+      if (dateRange.start.isValid() && dateRange.end.isValid()) {
+        isOccupied(respondIfAvailableAtTime, dateRange.start, dateRange.end);
+      } else {
+        bot.reply(message, 'Oops, I do not understand that timing: ' + dateRange.start + ' -- ' + dateRange.end);
+      }
+    }
+    //notImplemented(bot, message, "check future availability");
   }
 });
 
@@ -190,12 +212,20 @@ controller.hears([ 'hate it when', 'hate when', 'annoying when', 'frustrating wh
   bot.reply(message, "Sorry to hear that. Maybe you could open a new issue for me here: " + ISSUE_URL);
 });
 
-function isOccupied(callback) {
+function isOccupied(callback, dateTimeToCheck, endTimeToCheck) {
   // is there an ongoing event?
+  var day = new Date();
   
-  var today = new Date();
-  var morning = new Date(today.setHours(0,0));  // this morning at midnight
-  var night = new Date(today.setHours(23,59));
+  if (dateTimeToCheck !== undefined) {
+    day = dateTimeToCheck.clone();
+
+    if (endTimeToCheck === undefined) { // for future times, check a ten minute window
+      endTimeToCheck = dateTimeToCheck.clone().addMinutes(10);
+    }
+  }
+
+  var morning = new Date(day.setHours(0,0));  // that morning at midnight
+  var night = new Date(day.setHours(23,59));
   
   var ongoing = false;
   var ongoingEvent = null;
@@ -217,17 +247,32 @@ function isOccupied(callback) {
         console.log('No upcoming events found.');
         ongoing = false;
       } else {
-        console.log('Events for today:');
-        for (var i = 0; i < events.length; i++) {
+        console.log('Events for the day:');
+        for (var i = 0; i < events.length && ongoing == false; i++) {
           var event = events[i];
           var start = event.start.dateTime;
           var end = event.end.dateTime;
           console.log('%s - %s: %s', start, end, event.summary);
+
+          var startTime = new Date(Date.parse(start));
+          var endTime = new Date(Date.parse(end));
           
-          var now = new Date();          
-          if ( now > new Date(Date.parse(start)) && now < new Date(Date.parse(end)) ) {
+          if (endTimeToCheck !== undefined) {
+            // compare overlapping ranges
+            if ( (endTime <= dateTimeToCheck) || (startTime >= endTimeToCheck) ) {
+              console.log('event does not overlap with check range');
+              continue;
+            } else {
               ongoing = true;
               ongoingEvent = event;
+            }
+          } else { // compare to a single point in time
+            var now = new Date(); // default to the current moment         
+
+            if ( now > startTime && now < endTime ) {
+                ongoing = true;
+                ongoingEvent = event;
+            }
           }
         }
       }
