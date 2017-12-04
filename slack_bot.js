@@ -198,11 +198,11 @@ controller.hears(['can we use you (.+)', 'can we reserve you (.+)', 'can I use y
 });
 
 
-controller.hears(['help'], 'direct_mention,mention', function(bot, message) {
+controller.hears(['help', 'how do i'], 'direct_mention,mention', function(bot, message) {
     bot.reply(message, ("DM me with the message 'help' for more information"));
 });
 
-controller.hears(['help'], 'direct_message', function(bot, message) {
+controller.hears(['help', 'how do i'], 'direct_message', function(bot, message) {
   bot.reply(message, "I'm the littleroom bot - I help schedule room reservations for the PhD little room.");
   bot.reply(message, "*To see if the room is currently in use*, mention me or DM me and ask 'are you free?'");
   bot.reply(message, "*To make a reservation*, mention me or DM me and ask 'can we reserve you [date, or 'today' or 'tomorrow'] from [start time] to [end time]?'");
